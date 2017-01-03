@@ -1,0 +1,73 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: µVision V5.21.1.0
+Copyright (C) 2016 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: Damian Mucha, Damian Mucha, LIC=----
+ 
+Tool Versions:
+Toolchain:       MDK-Lite  Version: 5.21a
+Toolchain Path:  D:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 3 (build 300)
+Assembler:       Armasm.exe V5.06 update 3 (build 300)
+Linker/Locator:  ArmLink.exe V5.06 update 3 (build 300)
+Library Manager: ArmAr.exe V5.06 update 3 (build 300)
+Hex Converter:   FromElf.exe V5.06 update 3 (build 300)
+CPU DLL:         SARMCM3.DLL V5.21a
+Dialog DLL:      DARMCM1.DLL V1.14.0.0
+Target DLL:      CMSIS_AGDI.dll V1.26.5.0
+Dialog DLL:      TARMCM1.DLL V1.10.0.0
+ 
+<h2>Project:</h2>
+C:\Users\Damian\Desktop\uVis_proj\WS2812_GET_IT_DONE\light_my_fire.uvprojx
+Project File Date:  11/27/2016
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 3 (build 300)', folder: 'D:\Keil_v5\ARM\ARMCC\Bin'
+Rebuild target 'J-LINK DEVICE'
+assembling startup_MKL46Z4.s...
+compiling main.c...
+main.c(20): warning:  #177-D: variable "sms" was declared but never referenced
+  	uint8_t sms[40] = {1, 1, 1,  1,  1,  1, 1, 1, 
+main.c(26): warning:  #177-D: variable "symbol2" was declared but never referenced
+    uint8_t symbol2[40] = {1, 1, 1,  1,  1,  1, 1, 1, 
+main.c: 2 warnings, 0 errors
+compiling RGBW_LEDs_driver.c...
+compiling system_MKL46Z4.c...
+linking...
+Program Size: Code=2304 RO-data=332 RW-data=12 ZI-data=2396  
+".\Objects\light_my_fire.axf" - 0 Error(s), 2 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.4.1.1.pack
+                ARM::CMSIS:CORE:3.30.0
+                CMSIS (Cortex Microcontroller Software Interface Standard)
+   * Component: CORE Version: 3.30.0
+
+Package Vendor: Keil
+                http://www.keil.com/pack/Keil.Kinetis_KLxx_DFP.1.12.0.pack
+                Keil::Device:Startup:1.0.0
+                NXP Kinetis KLxx Series Device Support and Examples
+   * Component: Startup Version: 1.0.0
+
+<h2>Collection of Component include folders:</h2>
+  C:\Users\Damian\Desktop\uVis_proj\WS2812_GET_IT_DONE\RTE
+  D:\Keil_v5\ARM\PACK\ARM\CMSIS\4.1.1\CMSIS\Include
+  D:\Keil_v5\ARM\PACK\Keil\Kinetis_KLxx_DFP\1.12.0\Device\Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE:3.30.0
+      Source file:   CMSIS\UserCodeTemplates\ARM\ITM_Retarget.c
+
+   * Component: Keil::Device:Startup:1.0.0
+      Source file:   Device\Source\system_MKL46Z4.c
+      Source file:   Device\Source\ARM\startup_MKL46Z4.s
+Build Time Elapsed:  00:00:00
+</pre>
+</body>
+</html>
