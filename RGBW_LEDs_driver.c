@@ -24,7 +24,7 @@ const uint32_t tpm_p1_period = NSEC_TO_TICKS(650);																				//how much
 const uint32_t guardtime_period = USEC_TO_TICKS(55);   																		//guardtime minimum 50 usec, time between frames
 
 uint8_t LED_tab[NUM_OF_LEDS*3];           	 												//RGB table of pixels - NUM_OF_LEDS/RGB_DIODE_BITS
-//uint8_t Sym_part[40];																								//Part of whole symbol displayed on RGBs
+uint8_t Sym_part[40];																								//Part of whole symbol displayed on RGBs
 uint16_t num_of_LEDs = NUM_OF_LEDS; 																	//Numbers of LEDs in strip as variable
 uint32_t DMA_out_mask = 0;																						//DMA mask setting output
 volatile uint8_t dma_done_status = 1;																	//DMA status variable (volatile intended)
@@ -408,27 +408,33 @@ void turn_symbol(uint8_t matrix[], uint8_t green, uint8_t red, uint8_t blue) {
 }
 
 /*----------------------------------------------------------------------------
+			Set defined 40 LEDs symbol on display
+ *----------------------------------------------------------------------------*/
+void return_sym(uint8_t notif_tab[60], uint8_t pos) {
+	uint8_t i, j=0, k, l=0;
+	for (i=0; i<60; i++) {
+		if(i == pos+l) {
+			for(k=0; k<8; k++) {
+				Sym_part[k+j]=notif_tab[k+l+pos];
+			}
+			j += 8; l += 12;
+		}
+	}
+}
+
+/*----------------------------------------------------------------------------
 			Scroll display of desired symbol over a RGBs matrix
  *----------------------------------------------------------------------------*/
 void display_symbol(uint8_t sym_matrix[60], uint8_t green, uint8_t red, uint8_t blue) {
-	uint8_t i=0, j=0, k=0, l=0, part=0;
-	uint8_t Sym_part[40];
+	uint8_t part;
 	for (part=0; part<5; part++) {
 		set_matrix_off();
-		//return sym
-		for (i=0; i<60; i++) {
-		if(i == part+l) {
-			for(k=0; k<8; k++) {
-				Sym_part[k+j]=sym_matrix[k+l+part];
-			}
-			j += 8; l += 12;
-		 }
-	  }
-		//
+		return_sym(sym_matrix, part);
 	  turn_symbol(Sym_part, green, red, blue);
 	  start_DMA();
-		delay_mc(100);
+		delay_mc(200);
 	}
 }
+
 
 
