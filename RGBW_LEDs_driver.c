@@ -13,6 +13,8 @@
 #define OUT_PIN 				 	 2																					//D2 pin as output
 #define NSEC_TO_TICKS(nsec) ((nsec)*42/1000)													//function to change time to clock ticks
 #define USEC_TO_TICKS(usec) ((usec)*42)															  //function to change time to clock ticks
+/* SYMBOLS DISPLAY */
+#define NUM_OF_NOTIFS			 5																					//Number of different notifications to be displayed
 
 /*----------------------------------------------------------------------------
 			Needed variables initialization
@@ -24,10 +26,15 @@ const uint32_t tpm_p1_period = NSEC_TO_TICKS(650);																				//how much
 const uint32_t guardtime_period = USEC_TO_TICKS(55);   																		//guardtime minimum 50 usec, time between frames
 
 uint8_t LED_tab[NUM_OF_LEDS*3];           	 												//RGB table of pixels - NUM_OF_LEDS/RGB_DIODE_BITS
-uint8_t Sym_part[40];																								//Part of whole symbol displayed on RGBs
 uint16_t num_of_LEDs = NUM_OF_LEDS; 																	//Numbers of LEDs in strip as variable
 uint32_t DMA_out_mask = 0;																						//DMA mask setting output
-volatile uint8_t dma_done_status = 1;																	//DMA status variable (volatile intended)
+volatile uint8_t dma_done_status = 1;																	//DMA status variable (volatile intended since DMA_IRQ uses it)
+
+/*----------------------------------------------------------------------------
+			Variables needed for matrix display initialization
+ *----------------------------------------------------------------------------*/
+uint8_t Sym_part[40];																								//Part of whole symbol displayed on RGBs
+uint8_t Notif_tab[NUM_OF_NOTIFS] = {1, 1, 0, 1, 1};									//Table to hold unanswered notofications
 
 /*----------------------------------------------------------------------------
 			DMA DATA STRUCTURE
@@ -434,6 +441,63 @@ void display_symbol(uint8_t sym_matrix[60], uint8_t green, uint8_t red, uint8_t 
 	  start_DMA();
 		delay_mc(200);
 	}
+}
+
+/*----------------------------------------------------------------------------
+			Display all unanswered notifications. Scroll them through a screen
+ *----------------------------------------------------------------------------*/
+void scroll_syms(void) {
+	uint8_t cnt, cnt_int;
+	for (cnt=0; cnt<NUM_OF_NOTIFS; cnt++) {
+	 switch(cnt) {
+		 case 0: {//SMS
+			 uint8_t Sym_full[60] = {0, 0, 1, 1, 1,  1,  1,  1, 1, 1, 0, 0, 
+										           0, 0, 1, 1, 0,  0,  0,  0, 1, 1, 0, 0,
+										           0, 0, 1, 0, 1,  1,  1,  1, 0, 1, 0, 0,
+										           0, 0, 1, 1, 0,  0,  0,  0, 1, 1, 0, 0,
+										           0, 0, 1, 1, 1,  1,  1,  1, 1, 1, 0, 0};
+			 for(cnt_int = 0; cnt_int<Notif_tab[cnt]; cnt_int++) display_symbol(Sym_full, 25, 25, 0);
+		 }
+			 break;
+		 case 1: {//PHONE_CALL
+			 uint8_t Sym_full[60] = {0, 0, 0, 0, 1,  1,  1,  0, 0, 0, 0, 0, 
+										           0, 0, 0, 1, 0,  0,  0,  1, 1, 1, 0, 0,
+										           0, 0, 0, 1, 1,  0,  0,  1, 1, 1, 0, 0,
+										           0, 0, 1, 1, 1,  0,  0,  1, 1, 0, 0, 0,
+										           0, 0, 1, 1, 0,  0,  0,  0, 0, 0, 0, 0};
+			 for(cnt_int = 0; cnt_int<Notif_tab[cnt]; cnt_int++) display_symbol(Sym_full, 25, 0, 0);
+		 }
+			 break;
+		 case 2: {//E_MAIL
+			 uint8_t Sym_full[60] = {0, 0, 0, 1, 1,  1,  1,  1, 0, 0, 0, 0, 
+										           0, 0, 1, 0, 0,  0,  0,  0, 1, 0, 0, 0,
+										           0, 0, 1, 0, 1,  1,  1,  0, 1, 0, 0, 0,
+										           0, 0, 1, 0, 1,  0,  1,  1, 1, 0, 0, 0,
+										           0, 0, 1, 0, 1,  1,  1,  0, 0, 0, 0, 0};
+			 for(cnt_int = 0; cnt_int<Notif_tab[cnt]; cnt_int++) display_symbol(Sym_full, 50, 50, 50);
+		 }
+			 break;
+		 case 3: {//BATTERY
+			 uint8_t Sym_full[60] = {0, 0, 1, 1, 1,  1,  1,  1, 1, 1, 0, 0, 
+										              0, 0, 1, 0, 0,  0,  0,  1, 1, 1, 0, 0,
+										              0, 0, 1, 0, 0,  0,  0,  1, 1, 1, 0, 0,
+										              0, 0, 1, 1, 1,  1,  1,  1, 1, 1, 0, 0,
+										              0, 0, 0, 0, 0,  0,  0,  0, 0, 0, 0, 0};
+			 for(cnt_int = 0; cnt_int<Notif_tab[cnt]; cnt_int++) display_symbol(Sym_full, 0, 25, 0);
+		 }
+			 break;
+		 case 4: {//FACEBOOK
+			 uint8_t Sym_full[60] = {0, 0, 0, 0, 1,  1,  0,  1, 0, 0, 0, 0, 
+										           0, 0, 0, 1, 1,  0,  0,  1, 0, 0, 0, 0,
+										           0, 0, 1, 1, 1,  1,  0,  1, 1, 0, 0, 0,
+										           0, 0, 0, 1, 1,  0,  0,  1, 0, 1, 0, 0,
+										           0, 0, 0, 1, 1,  0,  0,  1, 1, 0, 0, 0};
+			 for(cnt_int = 0; cnt_int<Notif_tab[cnt]; cnt_int++) display_symbol(Sym_full, 0, 0, 25);
+		 }
+			 break;
+	 }
+	}
+	
 }
 
 
