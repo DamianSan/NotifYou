@@ -23,7 +23,8 @@ const uint32_t tpm_p0_period = NSEC_TO_TICKS(250);																				//how much
 const uint32_t tpm_p1_period = NSEC_TO_TICKS(650);																				//how much tiks take high state in zero
 const uint32_t guardtime_period = USEC_TO_TICKS(55);   																		//guardtime minimum 50 usec, time between frames
 
-uint8_t LED_tab[RGB_DIODE_BITS*3];           	 												//RGB table of pixels
+uint8_t LED_tab[NUM_OF_LEDS*3];           	 												//RGB table of pixels - NUM_OF_LEDS/RGB_DIODE_BITS
+//uint8_t Sym_part[40];																								//Part of whole symbol displayed on RGBs
 uint16_t num_of_LEDs = NUM_OF_LEDS; 																	//Numbers of LEDs in strip as variable
 uint32_t DMA_out_mask = 0;																						//DMA mask setting output
 volatile uint8_t dma_done_status = 1;																	//DMA status variable (volatile intended)
@@ -137,7 +138,7 @@ enum DMA_CHANNEL {																																				//enum for DMA_MUX CHannel
 		for (i=0; i<DMA_LEAD_ZEROS-1; i++) {
 			dma_data.start_t0_high[i] = 0;																					//Initialize start_t0_high table
 		}
-		for (i=0; i<DMA_TRAIL_ZEROS+1-1; i++) {
+		for (i=0; i<DMA_TRAIL_ZEROS+1; i++) {//usunalem '-1' za +1
 			dma_data.trailing_zeros_2[i] = 0;																				//Initialize trailing_zeros_2 table
 		}
  }
@@ -291,7 +292,7 @@ void turn_pixel_on(uint16_t num_pixel, uint8_t green, uint8_t red, uint8_t blue)
 	}		
 	for (i = 0; i < 8; i++) {																																//change order to LSB---MSB
 		bin_tab_correct[i] = bin_tab[7 - i];		
-		bin_tab_correct[i] *= 4;																															//EVERY element multipied by 255 (for DMA conversion purpose)
+		bin_tab_correct[i] *= 255;																															//EVERY element multipied by 255 (for DMA conversion purpose)
 	}
 	for (i = j; i < (8+j); i++) {																														//Add new elements to dma_words
 		dma_data.dma_words[num_pixel*24+i] = bin_tab_correct[i];
@@ -319,7 +320,7 @@ void turn_pixel_on(uint16_t num_pixel, uint8_t green, uint8_t red, uint8_t blue)
 	}																													
 	for (i = 0; i < 8; i++) {																																//Clearing tables
 		bin_tab[i] = 0;
-		bin_tab_correct[i] = 255;
+		bin_tab_correct[i] = 0;
 	}	
 	j = 16; i = 0; 																	  																			//Clear 'i' and change value of 'j'
 	
@@ -396,7 +397,7 @@ void set_matrix_off(void) {
 }
 
 /*----------------------------------------------------------------------------
-			Set all LEDs off
+			Set defined 40 LEDs symbol on display
  *----------------------------------------------------------------------------*/
 void turn_symbol(uint8_t matrix[], uint8_t green, uint8_t red, uint8_t blue) {
 	uint8_t i;
@@ -405,4 +406,29 @@ void turn_symbol(uint8_t matrix[], uint8_t green, uint8_t red, uint8_t blue) {
 			turn_pixel_on(i, green, red, blue);
 	}
 }
+
+/*----------------------------------------------------------------------------
+			Scroll display of desired symbol over a RGBs matrix
+ *----------------------------------------------------------------------------*/
+void display_symbol(uint8_t sym_matrix[60], uint8_t green, uint8_t red, uint8_t blue) {
+	uint8_t i=0, j=0, k=0, l=0, part=0;
+	uint8_t Sym_part[40];
+	for (part=0; part<5; part++) {
+		set_matrix_off();
+		//return sym
+		for (i=0; i<60; i++) {
+		if(i == part+l) {
+			for(k=0; k<8; k++) {
+				Sym_part[k+j]=sym_matrix[k+l+part];
+			}
+			j += 8; l += 12;
+		 }
+	  }
+		//
+	  turn_symbol(Sym_part, green, red, blue);
+	  start_DMA();
+		delay_mc(100);
+	}
+}
+
 
